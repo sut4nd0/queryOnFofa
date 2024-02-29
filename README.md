@@ -7,17 +7,13 @@
 
 本项目使用了免费代理池项目作为支撑，代理池项目地址：https://github.com/jhao104/proxy_pool
 
+本项目参考：https://github.com/RaiderZP/cnvd_fofa_gather
+## 安装
 完成代理池部署后，安装第三方库
 
 `pip3 install -r requirements.txt`
 
 然后将公司名称存入`company.txt`文件，启动脚本程序
 
-`python3 queryOnFofa.py`
-
-结果将保存到`result.xlsx`文件中
-
-**可根据搜索需求，修改第`122`行的内容**
-
-
-本项目参考：https://github.com/RaiderZP/cnvd_fofa_gather
+## 使用
+`python3 queryOnFofa.py -h`
