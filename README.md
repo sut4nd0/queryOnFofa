@@ -1,4 +1,4 @@
-# query_fofa_for_cnvd
+# queryOnFofa
 **本项目已解决fofa签名问题！！！**
 
 通过在fofa上搜索可能存在通用产品的公司，原理是判断网站标题数目以及独立IP数达到一定条件时将该标题以及公司名称导出。
@@ -9,11 +9,11 @@
 
 完成代理池部署后，安装第三方库
 
-`pip install -r requirements.txt`
+`pip3 install -r requirements.txt`
 
 然后将公司名称存入`company.txt`文件，启动脚本程序
 
-`python query_fofa_for_cnvd.py`
+`python3 queryOnFofa.py`
 
 结果将保存到`result.xlsx`文件中
 
