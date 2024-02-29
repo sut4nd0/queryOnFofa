@@ -8,6 +8,7 @@ import openpyxl
 import requests
 import urllib.parse
 import urllib3
+import argparse
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
@@ -115,11 +116,12 @@ def rsa_sign(d):
     return url_encoded_signature
 
 
-def query_in_fofa(cn):
+def query_on_fofa(cn, expr, o):
     fofa_url = 'https://api.fofa.info/v1/search/stats?qbase64='
     app_id = '9e9fb94330d97833acfbc041ee1a76793f1bc691'
+    expr = f'body="{cn}" && {expr}'
     # 进行RSA签名
-    qb = base64.b64encode(f'body="{cn}" && country="CN" && (title="登录" || title="管理" || title="登陆" || title="后台" || title="平台" || title="系统")'.encode()).decode()
+    qb = base64.b64encode(expr.encode()).decode()
     ts = int(time.time()) * 1000
     data = f'fullfalseqbase64{qb}ts{ts}'
     qb = urllib.parse.quote(qb, safe='')
@@ -137,19 +139,27 @@ def query_in_fofa(cn):
         print(f'[*]{cn}\n\t独立IP --->{distinct_ips}<---')
         print(f'\t首标题 --->{title}<---\n\t存在条数 --->{count}<---')
         # 结果写入result.xlsx
-        wba = openpyxl.load_workbook('result.xlsx')
+        wba = openpyxl.load_workbook(o)
         wsa = wba.active
         wsa.append([cn, distinct_ips, title, count])
-        wba.save('result.xlsx')
+        wba.save(o)
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="根据文件内的公司名称在fofa上进行批量查询")
+    parser.add_argument("-q", "--query", help='可指定搜索表达式(需使用引号), 默认查询: body="公司名称" && country="CN" && (title="登录" || title="管理" || title="登陆" || title="后台" || title="平台" || title="系统")', default='country="CN" && (title="登录" || title="管理" || title="登陆" || title="后台" || title="平台" || title="系统")')
+    parser.add_argument("-f", "--file", help="要处理的文件路径", required=True)
+    output = time.strftime('%Y-%m-%d_%H%M%S', time.localtime())
+    parser.add_argument("-o", "--output", help="可指定输出文件名，默认为当前时间", default=output)
+
+    args = parser.parse_args()
+    args.output = args.output + '.xlsx'
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.append(['公司名称', '独立IP数', '首标题', '首标题总数'])
-    wb.save('result.xlsx')
+    wb.save(args.output)
 
-    with open('company.txt', 'r', encoding='utf-8') as file:
+    with open(args.file, 'r', encoding='utf-8') as file:
         for line in file:
             cname = line.strip()
             try:
@@ -157,30 +167,30 @@ if __name__ == '__main__':
                     cname = cname[:re.search(r'科技', cname).end()]
                     if '(' in cname:
                         cname = cname.replace(re.search(r"\(.*?\)", cname).group(), '')
-                    query_in_fofa(cname)
+                    query_on_fofa(cname, args.query, args.output)
                 elif '技术' in cname:
                     cname = cname[:re.search(r'技术', cname).end()]
                     if '(' in cname:
                         cname = cname.replace(re.search(r"\(.*?\)", cname).group(), '')
-                    query_in_fofa(cname)
+                    query_on_fofa(cname, args.query, args.output)
                 elif '软件' in cname:
                     cname = cname[:re.search(r'软件', cname).end()]
                     if '(' in cname:
                         cname = cname.replace(re.search(r"\(.*?\)", cname).group(), '')
-                    query_in_fofa(cname)
+                    query_on_fofa(cname, args.query, args.output)
                 elif '股份' in cname:
                     cname = cname[:re.search(r'股份', cname).end()]
                     if '(' in cname:
                         cname = cname.replace(re.search(r"\(.*?\)", cname).group(), '')
-                    query_in_fofa(cname)
+                    query_on_fofa(cname, args.query, args.output)
                 elif '有限' in cname:
                     cname = cname[:re.search(r'有限', cname).end()-2]
                     if '(' in cname:
                         cname = cname.replace(re.search(r"\(.*?\)", cname).group(), '')
-                    query_in_fofa(cname)
+                    query_on_fofa(cname, args.query, args.output)
                 else:
                     if '(' in cname:
                         cname = cname.replace(re.search(r"\(.*?\)", cname).group(), '')
-                    query_in_fofa(cname)
+                    query_on_fofa(cname, args.query, args.output)
             except Exception as e1:
                 print(f'Main Error: {e1}')
