@@ -147,10 +147,10 @@ def query_on_fofa(cn, expr, o):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="根据文件内的公司名称在fofa上进行批量查询")
-    parser.add_argument("-q", "--query", help='可指定搜索表达式(需使用引号), 默认查询: body="公司名称" && country="CN" && (title="登录" || title="管理" || title="登陆" || title="后台" || title="平台" || title="系统")', default='country="CN" && (title="登录" || title="管理" || title="登陆" || title="后台" || title="平台" || title="系统")')
     parser.add_argument("-f", "--file", help="要处理的文件路径", required=True)
+    parser.add_argument("-q", "--query", help='指定搜索表达式(需使用引号), 默认: body="公司名称" && country="CN" && (title="登录" || title="管理" || title="登陆" || title="后台" || title="平台" || title="系统")', default='country="CN" && (title="登录" || title="管理" || title="登陆" || title="后台" || title="平台" || title="系统")')
     output = time.strftime('%Y-%m-%d_%H%M%S', time.localtime())
-    parser.add_argument("-o", "--output", help="可指定输出文件名，默认为当前时间", default=output)
+    parser.add_argument("-o", "--output", help="指定输出文件名，默认为当前时间", default=output)
 
     args = parser.parse_args()
     args.output = args.output + '.xlsx'
@@ -162,35 +162,36 @@ if __name__ == '__main__':
     with open(args.file, 'r', encoding='utf-8') as file:
         for line in file:
             cname = line.strip()
-            try:
-                if '科技' in cname:
-                    cname = cname[:re.search(r'科技', cname).end()]
-                    if '(' in cname:
-                        cname = cname.replace(re.search(r"\(.*?\)", cname).group(), '')
-                    query_on_fofa(cname, args.query, args.output)
-                elif '技术' in cname:
-                    cname = cname[:re.search(r'技术', cname).end()]
-                    if '(' in cname:
-                        cname = cname.replace(re.search(r"\(.*?\)", cname).group(), '')
-                    query_on_fofa(cname, args.query, args.output)
-                elif '软件' in cname:
-                    cname = cname[:re.search(r'软件', cname).end()]
-                    if '(' in cname:
-                        cname = cname.replace(re.search(r"\(.*?\)", cname).group(), '')
-                    query_on_fofa(cname, args.query, args.output)
-                elif '股份' in cname:
-                    cname = cname[:re.search(r'股份', cname).end()]
-                    if '(' in cname:
-                        cname = cname.replace(re.search(r"\(.*?\)", cname).group(), '')
-                    query_on_fofa(cname, args.query, args.output)
-                elif '有限' in cname:
-                    cname = cname[:re.search(r'有限', cname).end()-2]
-                    if '(' in cname:
-                        cname = cname.replace(re.search(r"\(.*?\)", cname).group(), '')
-                    query_on_fofa(cname, args.query, args.output)
-                else:
-                    if '(' in cname:
-                        cname = cname.replace(re.search(r"\(.*?\)", cname).group(), '')
-                    query_on_fofa(cname, args.query, args.output)
-            except Exception as e1:
-                print(f'Main Error: {e1}')
+            if cname:
+                try:
+                    if '科技' in cname:
+                        cname = cname[:re.search(r'科技', cname).end()]
+                        if '(' in cname:
+                            cname = cname.replace(re.search(r"\(.*?\)", cname).group(), '')
+                        query_on_fofa(cname, args.query, args.output)
+                    elif '技术' in cname:
+                        cname = cname[:re.search(r'技术', cname).end()]
+                        if '(' in cname:
+                            cname = cname.replace(re.search(r"\(.*?\)", cname).group(), '')
+                        query_on_fofa(cname, args.query, args.output)
+                    elif '软件' in cname:
+                        cname = cname[:re.search(r'软件', cname).end()]
+                        if '(' in cname:
+                            cname = cname.replace(re.search(r"\(.*?\)", cname).group(), '')
+                        query_on_fofa(cname, args.query, args.output)
+                    elif '股份' in cname:
+                        cname = cname[:re.search(r'股份', cname).end()]
+                        if '(' in cname:
+                            cname = cname.replace(re.search(r"\(.*?\)", cname).group(), '')
+                        query_on_fofa(cname, args.query, args.output)
+                    elif '有限' in cname:
+                        cname = cname[:re.search(r'有限', cname).end()-2]
+                        if '(' in cname:
+                            cname = cname.replace(re.search(r"\(.*?\)", cname).group(), '')
+                        query_on_fofa(cname, args.query, args.output)
+                    else:
+                        if '(' in cname:
+                            cname = cname.replace(re.search(r"\(.*?\)", cname).group(), '')
+                        query_on_fofa(cname, args.query, args.output)
+                except Exception as e1:
+                    print(f'Main Error: {e1}')
